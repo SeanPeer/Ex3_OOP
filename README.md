@@ -20,6 +20,8 @@ We will compare our implementation compared to our Java implementation done in [
 
 Also, we will compare our Graph to [Networkx](https://networkx.org/documentation/latest/) solution.
 
+All the comparisons can be found in the [Wiki!](https://github.com/SeanPeer/Ex3_OOP/wiki).
+
 ## Usage
 
 ```python
