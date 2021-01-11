@@ -16,7 +16,7 @@ pip install matplotlib
 
 ## Comparison
 
-We will compare our implementation compared to our Java implementation done in Ex2.
+We will compare our implementation compared to our Java implementation done in [Ex2](https://github.com/SeanPeer/Ex2-Pokemon1).
 
 Also, we will compare our Graph to [Networkx](https://networkx.org/) solution.
 
