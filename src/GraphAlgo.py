@@ -5,6 +5,7 @@ from DiGraph import DiGraph
 import json as js
 import sys
 import matplotlib.pyplot as plt
+import random
 
 
 class GraphAlgo:
@@ -31,19 +32,19 @@ class GraphAlgo:
             with open(file_name, 'r') as json_f:
                 data = js.load(json_f)
 
-                for n in data['Nodes']:
-                    try:
-                        pos = n['pos'].split(',')
-                        x, y, z = float(pos[0]), float(pos[1]), float(pos[2])
-                        loaded_graph.add_node(n['id'], (x, y, z))
-                    except:
-                        loaded_graph.add_node(n['id'])
+            for n in data['Nodes']:
+                try:
+                    pos = n['pos'].split(',')
+                    x, y, z = float(pos[0]), float(pos[1]), float(pos[2])
+                    loaded_graph.add_node(n['id'], (x, y, z))
+                except:
+                    loaded_graph.add_node(n['id'])
 
-                for e in data['Edges']:
-                    loaded_graph.add_edge(e['src'], e['dest'], e['w'])
+            for e in data['Edges']:
+                loaded_graph.add_edge(e['src'], e['dest'], e['w'])
 
-                self.graph = loaded_graph
-                return True
+            self.graph = loaded_graph
+            return True
 
         except OSError as err:
             print("OS error: {0}".format(err))
@@ -251,22 +252,27 @@ class GraphAlgo:
 
         x_, y_, z_ = [], [], []
         xy_id = []
+
         ax = plt.axes()
         for n in nodes:
             node_ = nodes[n]
             if node_.pos is None:
-                x, y, z = node_.id, node_.id, 0
-            else:
-                (x, y, z) = node_.pos
+                node_.update_position(self.graph.v_size())
+                # x, y, z = random.randint(0, self.graph.v_size()), random.uniform(0, self.graph.v_size()), 0
+
+            (x, y, z) = node_.pos
 
             for out in node_.outs:
 
                 o_ = self.graph.nodes[out]
 
                 if o_.pos is None:
-                    o_x, o_y, o_z = o_.id, o_.id, 0
-                else:
-                    (o_x, o_y, o_z) = o_.pos
+                    o_.update_position(self.graph.v_size())
+                    # o_x, o_y, o_z = random.randint(0, self.graph.v_size()), random.uniform(0, self.graph.v_size()), 0
+
+                (o_x, o_y, o_z) = o_.pos
+
+                # print(f"x:{x}, y:{y}, dx:{o_x-x}, dy:{o_y-y}")
 
                 # plot arrows between nodes
                 ax.quiver(x, y, o_x-x, o_y-y, angles='xy', scale_units='xy', scale=1, width=0.005)
