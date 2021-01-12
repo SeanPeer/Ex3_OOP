@@ -1,117 +1,157 @@
-import sys
-from DiGraph import DiGraph
+import unittest
 from GraphAlgo import GraphAlgo
+import json
+import networkx as nx
+import timeit
+import time
 
 
-def check():
-    """
-        This file represents a simple function name tester.
-        Make sure you run this example to check your naming.
-        ***** output: ******
-        Graph: |V|=4 , |E|=5
-        {0: 0: score inf, 1: 1: score inf, 2: 2: score inf, 3: 3: score inf}
-        {0: 1}
-        {0: 1.1, 2: 1.3, 3: 10}
-        (3.4, [0, 1, 2, 3])
-        [[0, 1], [2], [3]]    print(g_algo.connected_components())
-        (2.8, [0, 1, 3])     print(g_algo.shortest_path(0, 3))
-        (inf, None)         print(g_algo.shortest_path(3, 1
+class Testing(unittest.TestCase):
 
-        ))
-        2.062180280059253 [1, 10, 7]     g_algo.shortest_path(1, 7)
-        17.693921758901507 [47, 46, 45, 44, 43, 42, 41, 40, 39, 15, 16, 17, 18, 19]     g_algo.shortest_path(47, 19)
-        11.51061380461898 [20, 21, 32, 31, 30, 29, 14, 13, 3, 2]     g_algo.shortest_path(20, 2)
-        inf None        g_algo.shortest_path(2, 20)  no path!
-        [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]      print(g_algo.connected_component(0))
-        [[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13], [14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47]]
-        --> print(g_algo.connected_components())
-        """
-    check0()
-    check1()
-    check2()
+    def test_runtimes(self):
+        algo = GraphAlgo()
 
+        G_10_80_0 = '../data/G_10_80_0.json'
+        G_100_800_0 = '../data/G_100_800_0.json'
+        G_1000_8000_0 = '../data/G_1000_8000_0.json'
+        G_10000_80000_0 = '../data/G_10000_80000_0.json'
+        G_20000_160000_0 = '../data/G_20000_160000_0.json'
+        G_30000_240000_0 = '../data/G_30000_240000_0.json'
 
-def check0():
-    """
-    This function tests the naming (main methods of the DiGraph class, as defined in GraphInterface.
-    :return:
-    """
-    g = DiGraph()  # creates an empty directed graph
+        G_10_80_1 = '../data/G_10_80_1.json'
+        G_100_800_1 = '../data/G_100_800_1.json'
+        G_1000_8000_1 = '../data/G_1000_8000_1.json'
+        G_10000_80000_1 = '../data/G_10000_80000_1.json'
+        G_20000_160000_1 = '../data/G_20000_160000_1.json'
+        G_30000_240000_1 = '../data/G_30000_240000_1.json'
 
-    for n in range(4):
-        g.add_node(n)
+        G_10_80_2 = '../data/G_10_80_2.json'
+        G_100_800_2 = '../data/G_100_800_2.json'
+        G_1000_8000_2 = '../data/G_1000_8000_2.json'
+        G_10000_80000_2 = '../data/G_10000_80000_2.json'
+        G_20000_160000_2 = '../data/G_20000_160000_2.json'
+        G_30000_240000_2 = '../data/G_30000_240000_2.json'
 
-    b = g.add_node(1)
-    print("add test:" + str(b))
+        files = [G_10_80_0, G_100_800_0, G_1000_8000_0, G_10000_80000_0, G_20000_160000_0, G_30000_240000_0,
+                 G_10_80_1, G_100_800_1, G_1000_8000_1, G_10000_80000_1, G_20000_160000_1, G_30000_240000_1,
+                 G_10_80_2, G_100_800_2, G_1000_8000_2, G_10000_80000_2, G_20000_160000_2, G_30000_240000_2]
 
-    g.add_edge(0, 1, 1)
-    g.add_edge(1, 0, 1.1)
-    g.add_edge(1, 2, 1.3)
-    g.add_edge(2, 3, 1.1)
-    g.add_edge(1, 3, 1.9)
-    b = g.remove_edge(1, 3)
-    print("remove: " + str(b))
-    b = g.add_edge(1, 3, 10)
-    print("add after emove: ", b)
-    print(g)  # prints the __repr__ (func output)
-    print(g.get_all_v())  # prints a dict with all the graph's vertices.
-    print(g.all_in_edges_of_node(1))
-    print(g.all_out_edges_of_node(1))
-    g_algo = GraphAlgo(g)
-    print(g_algo.shortest_path(0, 3))
+        result = []
+        result_shortest_path = []
+        result_scc = []
 
-    # g_algo.load_from_json("../data/A0")
-    #
-    # n_g = g_algo.get_graph()
-    # print(n_g)  # prints the __repr__ (func output)
-    # print(n_g.get_all_v())  # prints a dict with all the graph's vertices.
-    # print(n_g.all_in_edges_of_node(1))
-    # print(n_g.all_out_edges_of_node(1))
-    #
-    # print("test save..")
-    # f = g_algo.save_to_json("../data/T0.json")
-    # print(f)
+        for i in files:
+            start = timeit.default_timer()
+            start_ = time.perf_counter()
 
+            algo.load_from_json(i)
 
-def check1():
-    """
-       This function tests the naming (main methods of the GraphAlgo class, as defined in GraphAlgoInterface.
-    :return:
-    """
-    g_algo = GraphAlgo()  # init an empty graph - for the GraphAlgo
-    file = "../data/T1.txt"
-    g_algo.load_from_json(file)  # init a GraphAlgo from a json file
-    print(g_algo.connected_components())
-    # print(g_algo.shortest_path(0, 3))
-    # print(g_algo.shortest_path(3, 1))
-    g_algo.save_to_json(file + '_saved')
-    g_algo.plot_graph()
+            stop = timeit.default_timer() - start
+            stop_ = time.perf_counter() - start_
 
+            # print(f"loading {i} took {stop} with timeit default_timer()")
+            # print(f"loading {i} took {stop_} with time perf_counter()")
 
-def check2():
-    """ This function tests the naming, basic testing over A5 json file.
-      :return:
-      """
-    g_algo = GraphAlgo()
-    file = '../data/A5'
-    g_algo.load_from_json(file)
-    g_algo.get_graph().remove_edge(13, 14)
-    g_algo.save_to_json(file + "_edited")
-    dist, path = g_algo.shortest_path(1, 7)
-    print(dist, path)
-    dist, path = g_algo.shortest_path(47, 19)
-    print(dist, path)
-    dist, path = g_algo.shortest_path(20, 2)
-    print(dist, path)
-    dist, path = g_algo.shortest_path(2, 20)
-    print(dist, path)
+            result.append((stop + stop_) / 2)
 
-    print("connected component to 0")
-    print(g_algo.connected_component(0))
-    print("all components")
-    print(g_algo.connected_components())
-    g_algo.plot_graph()
+            start = timeit.default_timer()
+            start_ = time.perf_counter()
+
+            algo.shortest_path(0, 3)
+
+            stop = timeit.default_timer() - start
+            stop_ = time.perf_counter() - start_
+
+            result_shortest_path.append((stop + stop_) / 2)
+
+            # start = timeit.default_timer()
+            # start_ = time.perf_counter()
+            #
+            # algo.connected_components()
+            #
+            # stop = timeit.default_timer() - start
+            # stop_ = time.perf_counter() - start_
+            #
+            # result_scc.append((stop + stop_) / 2)
+
+        print("Algo load results: ", result)
+        print("Algo shortest path results: ", result_shortest_path)
+        print("Algo scc results: ", result_scc)
+
+    def test_runtimes_networkx(self):
+        algo = GraphAlgo()
+
+        G_10_80_0 = '../data/G_10_80_0.json'
+        G_100_800_0 = '../data/G_100_800_0.json'
+        G_1000_8000_0 = '../data/G_1000_8000_0.json'
+        G_10000_80000_0 = '../data/G_10000_80000_0.json'
+        G_20000_160000_0 = '../data/G_20000_160000_0.json'
+        G_30000_240000_0 = '../data/G_30000_240000_0.json'
+
+        G_10_80_1 = '../data/G_10_80_1.json'
+        G_100_800_1 = '../data/G_100_800_1.json'
+        G_1000_8000_1 = '../data/G_1000_8000_1.json'
+        G_10000_80000_1 = '../data/G_10000_80000_1.json'
+        G_20000_160000_1 = '../data/G_20000_160000_1.json'
+        G_30000_240000_1 = '../data/G_30000_240000_1.json'
+
+        G_10_80_2 = '../data/G_10_80_2.json'
+        G_100_800_2 = '../data/G_100_800_2.json'
+        G_1000_8000_2 = '../data/G_1000_8000_2.json'
+        G_10000_80000_2 = '../data/G_10000_80000_2.json'
+        G_20000_160000_2 = '../data/G_20000_160000_2.json'
+        G_30000_240000_2 = '../data/G_30000_240000_2.json'
+
+        files = [G_10_80_0, G_100_800_0, G_1000_8000_0, G_10000_80000_0, G_20000_160000_0, G_30000_240000_0,
+                 G_10_80_1, G_100_800_1, G_1000_8000_1, G_10000_80000_1, G_20000_160000_1, G_30000_240000_1,
+                 G_10_80_2, G_100_800_2, G_1000_8000_2, G_10000_80000_2, G_20000_160000_2, G_30000_240000_2]
+
+        result = []
+        result_shortest_path = []
+
+        for i in files:
+            start = timeit.default_timer()
+            start_ = time.perf_counter()
+
+            # networkx load graph logic here
+            nodes = []
+            edges = []
+
+            with open(i) as f:
+                data = json.load(f)
+
+                for n in data['Nodes']:
+                    nodes.append(n['id'])
+
+                for e in data['Edges']:
+                    edges.append((e['src'], e['dest'], e['w']))
+
+            g_nx = nx.DiGraph()
+
+            g_nx.add_nodes_from(nodes)
+            g_nx.add_weighted_edges_from(edges)
+
+            stop = timeit.default_timer() - start
+            stop_ = time.perf_counter() - start_
+
+            # print(f"loading {i} took {stop} with timeit default_timer()")
+            # print(f"loading {i} took {stop_} with time perf_counter()")
+
+            result.append((stop + stop_) / 2)
+
+            start = timeit.default_timer()
+            start_ = time.perf_counter()
+
+            sp = nx.shortest_path(g_nx, 0, 3, weight='weight')
+
+            stop = timeit.default_timer() - start
+            stop_ = time.perf_counter() - start_
+
+            result_shortest_path.append((stop + stop_) / 2)
+
+        print("networkx load results: ", result)
+        print("networkx shortest path results: ", result_shortest_path)
 
 
 if __name__ == '__main__':
-    check()
+    unittest.main()
