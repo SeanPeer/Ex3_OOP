@@ -1,3 +1,6 @@
+import random
+
+
 class DiNode:
 
     def __init__(self, id_: int, pos: tuple):
@@ -7,6 +10,11 @@ class DiNode:
 
         self.ins = {}
         self.outs = {}
+
+    def update_position(self, v_size):
+        if self.pos is None:
+            x, y, z = random.randint(0, v_size+5), random.uniform(0, v_size+5), 0
+            self.pos = (x, y, z)
 
     def add_into(self, id2: int, w: float) -> bool:
         if not self.check_edge_in(id2):
