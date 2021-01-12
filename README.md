@@ -36,7 +36,7 @@ A graphic representation of the graph, using matplotlib.
 ![picture](images/python_Qp2VPSNB93.png)
 
 ## Usage
-
+Using a Graph.
 ```python
 # construct a graph
 g = DiGraph()
@@ -62,6 +62,40 @@ g.v_size()
 # get |E|
 g.e_size()
 
+# get in edges of node id
+g.all_in_edges_of_node(id)
+
+# get out edges from node id
+g.get_out_edges_of_nodes(id)
+```
+
+using Graph Algorithms:
+```python
+# construct an algo initialized with graph g.
+algo = GraphAlgo(g)
+
+# construct an algo without initializiation. (requires load to use graph features).
+# using load_from_json to load a graph from a json
+# expecting the following format: {"Edges": [{"src":s, "dest":d, "w":w}], 'Nodes': [{"id":id, "pos":pos}]
+# note: pos argument for a node is optional.
+algo = GraphAlgo()
+algo.load_from_json(file_path)
+
+# save current algo's graph to a json file
+algo.save_to_json(file_path)
+
+# calculate shortest path between two nodes
+# returns shortest distance, and shortest path.
+dist, path = algo.shortest_path(src, dest)
+
+# get all Strongly connected components in the graph
+components = algo.connected_components()
+
+# get all Strongly connected components to a given node 
+component = algo.connected_component(id)
+
+# plot the graph with matplotlib
+algo.plot_graph()
 ```
 
 ## Contributing
