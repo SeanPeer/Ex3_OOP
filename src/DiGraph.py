@@ -1,16 +1,23 @@
 from DiNode import DiNode
+import networkx as nx
 
 
 class DiGraph:
 
-    def __init__(self):
+    def __init__(self, networkx_graph: nx = None):
         self.nodes = {}
-
-        self.edges = []
 
         self.edges_size = 0
         self.node_size = 0
         self.operations = 0
+
+        if networkx_graph:
+            for n in networkx_graph.nodes:
+                self.add_node(n)
+
+            for e in networkx_graph.edges:
+                w = networkx_graph.get_edge_data(*e)['weight']
+                self.add_edge(*e, w)
 
     def v_size(self) -> int:
         """
@@ -78,8 +85,6 @@ class DiGraph:
                 self.edges_size += 1
                 self.operations += 1
 
-                self.edges.append((id1, id2, weight))
-
                 return True
 
         return False
@@ -94,9 +99,9 @@ class DiGraph:
         """
 
         if node_id not in self.nodes:
-
             self.nodes[node_id] = DiNode(id_=node_id, pos=pos)
             self.node_size += 1
+            self.operations += 1
 
             return True
 
@@ -119,6 +124,8 @@ class DiGraph:
 
             for n in node.ins:
                 del self.nodes[n].outs[node_id]
+                self.edges_size -= 1
+                self.operations += 1
 
             self.node_size -= 1
             self.operations += 1
@@ -143,7 +150,6 @@ class DiGraph:
             node2 = self.nodes.get(node_id2)
 
             if node1.check_edge_out(node_id2) and node_id1 is not node_id2:
-
                 node1.disconnect_out(node_id2)
                 node2.disconnect_in(node_id1)
 
@@ -156,7 +162,6 @@ class DiGraph:
     def transpose(self):
         """
         builds a transposed graph
-        :param graph:
         :return: transposed graph
         """
 
@@ -172,10 +177,10 @@ class DiGraph:
         return transposed
 
     def __str__(self):
-        return "|V|="+str(self.node_size)+" , |E|="+str(self.edges_size)
+        return "|V|=" + str(self.node_size) + " , |E|=" + str(self.edges_size)
 
     def __repr__(self):
-        return "|V|="+str(self.node_size)+" , |E|="+str(self.edges_size)
+        return "|V|=" + str(self.node_size) + " , |E|=" + str(self.edges_size)
 
     def __eq__(self, other):
         return other.edges_size == self.edges_size \
