@@ -22,6 +22,11 @@ Also, we will compare our Graph to [Networkx](https://networkx.org/documentation
 
 All the comparisons can be found in the [Wiki!](https://github.com/SeanPeer/Ex3_OOP/wiki).
 
+### visual comparison
+
+using matplotlib we can show each element's runtime, segmented by files.
+![picture](images/python_SXXm5rVZrW.png)
+
 ## Visualization
 
 A graphic representation of the graph, using matplotlib.
