@@ -22,6 +22,14 @@ Also, we will compare our Graph to [Networkx](https://networkx.org/documentation
 
 All the comparisons can be found in the [Wiki!](https://github.com/SeanPeer/Ex3_OOP/wiki).
 
+## Visualization
+
+A graphic representation of the graph, using matplotlib.
+
+![picture](images/python_9LCk7aOCv2.png)
+![picture](images/python_j5jMqdhZIB.png)
+![picture](images/python_Qp2VPSNB93.png)
+
 ## Usage
 
 ```python
