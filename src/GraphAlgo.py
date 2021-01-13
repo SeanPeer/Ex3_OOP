@@ -1,4 +1,5 @@
 from typing import List
+import DiNode
 from src import GraphInterface
 import heapq
 from DiGraph import DiGraph
@@ -6,12 +7,22 @@ import json as js
 import sys
 import matplotlib.pyplot as plt
 import random
+import threading
 
 
 class GraphAlgo:
 
     def __init__(self, graph=None):
         self.graph = graph
+        self.Time = 0
+        self.sccs = []
+        self.component = []
+
+        self.ids = {}
+        self.list_path = []
+        self.lists_path = []
+        # sys.setrecursionlimit(6_000)
+
 
     def get_graph(self) -> GraphInterface:
         """
@@ -160,44 +171,118 @@ class GraphAlgo:
 
         return distances[id2], path[::-1]
 
-    def dfs(self, nodes: dict, v: int, visited: dict, final) -> list:
-        """
-        utill function to scan graph recursively with DFS
-        :param final:
-        :param nodes: dict of nodes for the current graph dfs will run on
-        :param v: current node
-        :param visited: list of visited vertexes
-        :return: list representing a strongly connected component
-        """
-        visited[v] = True
+    def __sconnect(self, v: int):
+        id = 0
+        low = dict()
+        onStack = dict()
+        stack = []
 
-        final.append(v)
+        for n in self.graph.get_all_v().keys():
+            low.update({n:0})
+            onStack.update({n: False})
 
-        for out in nodes[v].outs:
-            if not visited[out]:
-                self.dfs(nodes, nodes[out].id, visited, final)
+        work = [(v, 0)]  # NEW: Recursion stack.
+        while work:
+            v, i = work[-1]  # i is next successor to process.
+            del work[-1]
+            if i == 0:  # When first visiting a vertex:
+                stack.append(v)
+                onStack.update({v: True})
+                id += 1
+                self.ids.update({v: id})
+                low.update({v: id})
+            recurse = False
+            j=0
+            for to in self.graph.all_out_edges_of_node(v).keys():
+                w = to
+                if self.ids.get(w)==0:
+                    # CHANGED: Add w to recursion stack.
+                    work.append((v, j + 1))
+                    work.append((w, 0))
+                    recurse = True
+                    j += 1
+                    break
+                elif onStack.get(to) is True:
+                    j += 1
+                    low.update({v:min(low.get(v),low.get(to))})
 
-        return final
+            if recurse: continue  # NEW
+            if self.ids.get(v) is low.get(v):
+                list_path = []
+                while stack:
+                    node = stack.pop()
+                    list_path.insert(0, node)
+                    onStack.update({node: False})
+                    low.update({node: (self.ids.get(v))})
+                    if node == v: break
+                self.lists_path.insert(0, list_path)
+            if work:  # NEW: v was recursively visited.
+                w = v
+                v, _ = work[-1]
+                low.update({v:min(low.get(v),low.get(w))})
 
-    def fillStack(self, nodes: dict, v: int, visited: dict, stack: list):
-        """
-        utill function to scan graph recursively with dfs algorithm
-        while inserting them into a stack for later use
-        to find connected components
-        :param nodes: dict of nodes for the current graph fillStack will run on
-        :param v: current node
-        :param visited: list of visited vertexes
-        :param stack: stack of visited vertexes
-        :return:
-        """
+    def SCCUtil(self, u, low, disc, stackMember, st):
 
-        visited[v] = True
+        # Initialize discovery time and low value
+        disc[u] = self.Time
+        low[u] = self.Time
+        self.Time += 1
+        stackMember[u] = True
+        st.append(u)
 
-        for out in nodes[v].outs:
-            if not visited[out]:
-                self.fillStack(nodes, nodes[out].id, visited, stack)
+        # Go through all vertices adjacent to this
+        for v in self.graph.all_out_edges_of_node(u):
 
-        stack.append(v)
+            # If v is not visited yet, then recur for it
+            if disc[v] == -1:
+
+                self.SCCUtil(v, low, disc, stackMember, st)
+
+                # Check if the subtree rooted with v has a connection to
+                # one of the ancestors of u
+                # Case 1 (per above discussion on Disc and Low value)
+                low[u] = min(low[u], low[v])
+
+            elif stackMember[v]:
+
+                '''Update low value of 'u' only if 'v' is still in stack 
+                (i.e. it's a back edge, not cross edge). 
+                Case 2 (per above discussion on Disc and Low value) '''
+                low[u] = min(low[u], disc[v])
+
+                # head node found, pop the stack and print an SCC
+        w = -1  # To store stack extracted vertices
+        if low[u] == disc[u]:
+            while w != u:
+                w = st.pop()
+                # print(w)
+                # self.sccs.append(w)
+                self.component.append(w)
+                stackMember[w] = False
+
+            # print("")
+            self.sccs.append(self.component)
+            self.component = []
+
+            # The function to do DFS traversal.
+
+    # It uses recursive SCCUtil()
+    def SCC(self):
+
+        # Mark all the vertices as not visited
+        # and Initialize parent and visited,
+        # and ap(articulation point) arrays
+        disc = [-1] * (self.graph.v_size())
+        low = [-1] * (self.graph.v_size())
+        stackMember = [False] * (self.graph.v_size())
+        st = []
+
+        # Call the recursive helper function
+        # to find articulation points
+        # in DFS tree rooted with vertex 'i'
+        for i in range((self.graph.v_size())):
+            if disc[i] == -1:
+                self.SCCUtil(i, low, disc, stackMember, st)
 
     def connected_component(self, id1: int) -> list:
         """
@@ -205,40 +290,68 @@ class GraphAlgo:
         @param id1: The node id
         @return: The list of nodes in the SCC
         """
+        self.sccs = []
+        self.component = []
+        # Mark all the vertices as not visited
+        # and Initialize parent and visited,
+        # and ap(articulation point) arrays
+        disc = [-1] * (self.graph.v_size())
+        low = [-1] * (self.graph.v_size())
+        stackMember = [False] * (self.graph.v_size())
+        st = []
 
-        for i in self.connected_components():
-            if id1 in i:
-                return i
+        # Call the recursive helper function
+        # to find articulation points
+        # in DFS tree rooted with vertex 'i'
 
-        return []
+        self.SCCUtil(id1, low, disc, stackMember, st)
+
+        return self.sccs
 
     def connected_components(self) -> List[list]:
         """
         Finds all the Strongly Connected Component(SCC) in the graph.
         @return: The list all SCC
         """
-        stack = []
-
-        visited = {i: False for i in self.graph.get_all_v()}
-
-        for v in self.graph.get_all_v():
-            if not visited[v]:
-                self.fillStack(self.graph.get_all_v(), v, visited, stack)
-
-        transposed = DiGraph.transpose(self.get_graph())
-
-        visited = {i: False for i in self.graph.get_all_v()}
-
-        res = []
-
-        while stack:
-            v = stack.pop()
-            final = []
-            if not visited[v]:
-                component = self.dfs(transposed.get_all_v(), v, visited, final)
-                res.append(component)
-
-        return res
+        self.sccs = []
+        self.component = []
+        self.SCC()
+        return self.sccs
+        # for v in self.graph.nodes:
+        #     self.graph.nodes[v].tag = False
+        #
+        # sccs = []
+        # for v in self.graph.get_all_v():
+        #     c = self.dfs_with_stack(v, self.graph)
+        #     if c:
+        #         sccs.append(c)
+        #
+        # return sccs
+        #
+        # stack = []
+        #
+        # # visited = {i: False for i in self.graph.get_all_v()}
+        #
+        # for v in self.graph.get_all_v():
+        #     # if not visited[v]:
+        #     if not self.graph.nodes[v].tag:
+        #         # self.fillStack(self.graph.get_all_v(), v, visited, stack)
+        #         self.fillStack_tag(self.graph.get_all_v(), v, stack)
+        #
+        # transposed = DiGraph.transpose(self.get_graph())
+        #
+        # # visited = {i: False for i in self.graph.get_all_v()}
+        #
+        # res = []
+        # while stack:
+        #     v = stack.pop()
+        #     final = set()
+        #     if not transposed.nodes[v].tag:
+        #         # component = self.dfs(transposed.get_all_v(), v, final)
+        #         component = self.dfs_with_stack(v, transposed)
+        #         res.append(component)
+        #
+        # return res
 
     def plot_graph(self) -> None:
         """
