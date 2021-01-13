@@ -1,8 +1,8 @@
-# Ex3 - Un-directed weighted graph in Python
+# Ex3 - Bi-dirctional weighted graph in Python
 
 Assignment 3 in OOP course, Ariel university 2021.
 
-In this assignment we will present an un-directed weighted graph implemented
+In this assignment we will present an Bi-directional weighted graph implemented
 in python 3.
 
 
