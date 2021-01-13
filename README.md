@@ -22,10 +22,16 @@ Also, we will compare our Graph to [Networkx](https://networkx.org/documentation
 
 All the comparisons can be found in the [Wiki!](https://github.com/SeanPeer/Ex3_OOP/wiki).
 
+My pc specs are: <br/>
+#### CPU - i7 6700k (4 cores 8 threads)<br/>
+#### RAM - 16GB RAM DDR4<br/>
+#### GPU - Geforce GTX 980Ti<br/>
+
 ### visual comparison
 
-using matplotlib we can show each element's runtime, segmented by files.
-![picture](images/python_SXXm5rVZrW.png)
+using matplotlib we can show each element's runtime, segmented by files.<br/>
+for example:
+![picture](images/G_10_80_2.png)
 
 ## Visualization
 
