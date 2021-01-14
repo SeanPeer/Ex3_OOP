@@ -4,20 +4,12 @@ import networkx as nx
 
 class DiGraph:
 
-    def __init__(self, networkx_graph: nx = None):
+    def __init__(self):
         self.nodes = {}
 
         self.edges_size = 0
         self.node_size = 0
         self.operations = 0
-
-        if networkx_graph:
-            for n in networkx_graph.nodes:
-                self.add_node(n)
-
-            for e in networkx_graph.edges:
-                w = networkx_graph.get_edge_data(*e)['weight']
-                self.add_edge(*e, w)
 
     def v_size(self) -> int:
         """
@@ -120,12 +112,10 @@ class DiGraph:
             for o in node.outs:
                 del self.nodes[o].ins[node_id]
                 self.edges_size -= 1
-                self.operations += 1
 
             for n in node.ins:
                 del self.nodes[n].outs[node_id]
                 self.edges_size -= 1
-                self.operations += 1
 
             self.node_size -= 1
             self.operations += 1
@@ -184,4 +174,5 @@ class DiGraph:
 
     def __eq__(self, other):
         return other.edges_size == self.edges_size \
-               and other.node_size == self.node_size
+               and other.node_size == self.node_size \
+               and other.nodes == self.nodes
