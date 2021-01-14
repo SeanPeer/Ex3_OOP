@@ -31,7 +31,7 @@ My pc specs are: <br/>
 
 using matplotlib we can show each element's runtime, segmented by files.<br/>
 for example:
-![picture](images/G_10_80_2.png)
+![picture](images/G_1000_8000_2.png)
 
 ## Visualization
 
