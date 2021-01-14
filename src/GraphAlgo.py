@@ -171,118 +171,35 @@ class GraphAlgo:
 
         return distances[id2], path[::-1]
 
-    def __sconnect(self, v: int):
-        id = 0
-        low = dict()
-        onStack = dict()
-        stack = []
+    def bfs_util(self, v, nodes, stack):
+        q = [v]
+        nodes[v].tag = True
 
-        for n in self.graph.get_all_v().keys():
-            low.update({n:0})
-            onStack.update({n: False})
+        while q:
+            indx = q.pop()
 
-        work = [(v, 0)]  # NEW: Recursion stack.
-        while work:
-            v, i = work[-1]  # i is next successor to process.
-            del work[-1]
-            if i == 0:  # When first visiting a vertex:
-                stack.append(v)
-                onStack.update({v: True})
-                id += 1
-                self.ids.update({v: id})
-                low.update({v: id})
-            recurse = False
-            j=0
-            for to in self.graph.all_out_edges_of_node(v).keys():
-                w = to
-                if self.ids.get(w)==0:
-                    # CHANGED: Add w to recursion stack.
-                    work.append((v, j + 1))
-                    work.append((w, 0))
-                    recurse = True
-                    j += 1
-                    break
-                elif onStack.get(to) is True:
-                    j += 1
-                    low.update({v:min(low.get(v),low.get(to))})
+            for i in self.graph.all_out_edges_of_node(indx):
+                if not nodes[i].tag:
+                    nodes[i].tag = True
+                    q.append(i)
+            stack.append(indx)
 
-            if recurse: continue  # NEW
-            if self.ids.get(v) is low.get(v):
-                list_path = []
-                while stack:
-                    node = stack.pop()
-                    list_path.insert(0, node)
-                    onStack.update({node: False})
-                    low.update({node: (self.ids.get(v))})
-                    if node == v: break
-                self.lists_path.insert(0, list_path)
-            if work:  # NEW: v was recursively visited.
-                w = v
-                v, _ = work[-1]
-                low.update({v:min(low.get(v),low.get(w))})
+    def bfs(self, v, graph, final):
+        q = [v]
+        final.append(v)
+        graph.nodes[v].tag = True
 
-    def SCCUtil(self, u, low, disc, stackMember, st):
+        while q:
+            indx = heapq.heappop(q)
 
-        # Initialize discovery time and low value
-        disc[u] = self.Time
-        low[u] = self.Time
-        self.Time += 1
-        stackMember[u] = True
-        st.append(u)
+            for i in graph.all_out_edges_of_node(indx):
 
-        # Go through all vertices adjacent to this
-        for v in self.graph.all_out_edges_of_node(u):
+                if not graph.nodes[i].tag:
+                    graph.nodes[i].tag = True
+                    q.append(i)
+                    final.append(i)
 
-            # If v is not visited yet, then recur for it
-            if disc[v] == -1:
-
-                self.SCCUtil(v, low, disc, stackMember, st)
-
-                # Check if the subtree rooted with v has a connection to
-                # one of the ancestors of u
-                # Case 1 (per above discussion on Disc and Low value)
-                low[u] = min(low[u], low[v])
-
-            elif stackMember[v]:
-
-                '''Update low value of 'u' only if 'v' is still in stack 
-                (i.e. it's a back edge, not cross edge). 
-                Case 2 (per above discussion on Disc and Low value) '''
-                low[u] = min(low[u], disc[v])
-
-                # head node found, pop the stack and print an SCC
-        w = -1  # To store stack extracted vertices
-        if low[u] == disc[u]:
-            while w != u:
-                w = st.pop()
-                # print(w)
-                # self.sccs.append(w)
-                self.component.append(w)
-                stackMember[w] = False
-
-            # print("")
-            self.sccs.append(self.component)
-            self.component = []
-
-            # The function to do DFS traversal.
-
-    # It uses recursive SCCUtil()
-    def SCC(self):
-
-        # Mark all the vertices as not visited
-        # and Initialize parent and visited,
-        # and ap(articulation point) arrays
-        disc = [-1] * (self.graph.v_size())
-        low = [-1] * (self.graph.v_size())
-        stackMember = [False] * (self.graph.v_size())
-        st = []
-
-        # Call the recursive helper function
-        # to find articulation points
-        # in DFS tree rooted with vertex 'i'
-        for i in range((self.graph.v_size())):
-            if disc[i] == -1:
-                self.SCCUtil(i, low, disc, stackMember, st)
+        return final
 
     def connected_component(self, id1: int) -> list:
         """
@@ -290,68 +207,68 @@ class GraphAlgo:
         @param id1: The node id
         @return: The list of nodes in the SCC
         """
-        self.sccs = []
-        self.component = []
-        # Mark all the vertices as not visited
-        # and Initialize parent and visited,
-        # and ap(articulation point) arrays
-        disc = [-1] * (self.graph.v_size())
-        low = [-1] * (self.graph.v_size())
-        stackMember = [False] * (self.graph.v_size())
-        st = []
 
-        # Call the recursive helper function
-        # to find articulation points
-        # in DFS tree rooted with vertex 'i'
+        nodes = self.graph.get_all_v()
 
-        self.SCCUtil(id1, low, disc, stackMember, st)
+        for n in nodes:
+            nodes[n].tag = False
 
-        return self.sccs
+        stack = []
+
+        self.bfs_util(id1, nodes, stack)
+
+        # transpose graph
+        transpose_graph = self.graph.transpose()
+
+        scc_path = []
+
+        self.bfs(id1, transpose_graph, scc_path)
+
+        return list(set(stack).intersection(scc_path))
 
     def connected_components(self) -> List[list]:
         """
+        dfs(src)
+        tranpose_graph
+        dfs(src -> transpose)
+
         Finds all the Strongly Connected Component(SCC) in the graph.
         @return: The list all SCC
         """
-        self.sccs = []
-        self.component = []
-        self.SCC()
-        return self.sccs
-        # for v in self.graph.nodes:
-        #     self.graph.nodes[v].tag = False
-        #
-        # sccs = []
-        # for v in self.graph.get_all_v():
-        #     c = self.dfs_with_stack(v, self.graph)
-        #     if c:
-        #         sccs.append(c)
-        #
-        # return sccs
-        #
-        # stack = []
-        #
-        # # visited = {i: False for i in self.graph.get_all_v()}
-        #
-        # for v in self.graph.get_all_v():
-        #     # if not visited[v]:
-        #     if not self.graph.nodes[v].tag:
-        #         # self.fillStack(self.graph.get_all_v(), v, visited, stack)
-        #         self.fillStack_tag(self.graph.get_all_v(), v, stack)
-        #
-        # transposed = DiGraph.transpose(self.get_graph())
-        #
-        # # visited = {i: False for i in self.graph.get_all_v()}
-        #
-        # res = []
-        # while stack:
-        #     v = stack.pop()
-        #     final = set()
-        #     if not transposed.nodes[v].tag:
-        #         # component = self.dfs(transposed.get_all_v(), v, final)
-        #         component = self.dfs_with_stack(v, transposed)
-        #         res.append(component)
-        #
-        # return res
+
+        nodes = self.graph.get_all_v()
+        for n in nodes:
+            nodes[n].tag = False
+
+        result = []
+
+        for n in nodes:
+
+            flag = False
+            for i in result:
+                if n in i: flag = True
+
+            if flag: continue
+
+            for x in nodes:
+                nodes[x].tag = False
+
+            stack = []
+
+            self.bfs_util(n, nodes, stack)
+
+            # transpose graph
+            transpose_graph = self.graph.transpose()
+
+            scc_path = []
+
+            nodes = transpose_graph.get_all_v()
+
+            self.bfs(n, transpose_graph, scc_path)
+
+            result.append(list(set(stack).intersection(scc_path)))
+
+        return result
 
     def plot_graph(self) -> None:
         """
