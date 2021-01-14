@@ -1,4 +1,4 @@
-# Ex3 - Bi-dirctional weighted graph in Python
+# Ex3 - Bi-directional weighted graph in Python
 
 Assignment 3 in OOP course, Ariel university 2021.
 
