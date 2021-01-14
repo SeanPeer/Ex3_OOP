@@ -204,6 +204,8 @@ class GraphAlgo:
     def connected_component(self, id1: int) -> list:
         """
         Finds the Strongly Connected Component(SCC) that node id1 is a part of.
+        used Kosaraju's algorithm with BFS
+
         @param id1: The node id
         @return: The list of nodes in the SCC
         """
@@ -228,21 +230,19 @@ class GraphAlgo:
 
     def connected_components(self) -> List[list]:
         """
-        dfs(src)
-        tranpose_graph
-        dfs(src -> transpose)
+        Finds the Strongly Connected Component(SCC) that node id1 is a part of.
+        used Kosaraju's altered with BFS to avoid recursive overflow
 
         Finds all the Strongly Connected Component(SCC) in the graph.
         @return: The list all SCC
         """
 
-        nodes = self.graph.get_all_v()
-        for n in nodes:
-            nodes[n].tag = False
+        for n in self.graph.get_all_v():
+            self.graph.get_all_v()[n].tag = False
 
         result = []
 
-        for n in nodes:
+        for n in self.graph.get_all_v():
 
             flag = False
             for i in result:
@@ -250,19 +250,17 @@ class GraphAlgo:
 
             if flag: continue
 
-            for x in nodes:
-                nodes[x].tag = False
+            for x in self.graph.get_all_v():
+                self.graph.get_all_v()[x].tag = False
 
             stack = []
 
-            self.bfs_util(n, nodes, stack)
+            self.bfs_util(n, self.graph.get_all_v(), stack)
 
             # transpose graph
             transpose_graph = self.graph.transpose()
 
             scc_path = []
-
-            nodes = transpose_graph.get_all_v()
 
             self.bfs(n, transpose_graph, scc_path)
 
